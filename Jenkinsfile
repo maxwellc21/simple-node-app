@@ -28,9 +28,9 @@ pipeline {
                 withSonarQubeEnv('SonarQube') {  // Ensure SonarQube is configured in Jenkins
                     bat """
                     sonar-scanner \
-                    -Dsonar.projectKey=simple-node-app \  // Use the correct project key
+                    -Dsonar.projectKey=simple-node-app \
                     -Dsonar.sources=. \
-                    -Dsonar.host.url=http://localhost:9006 \  // Update with the actual SonarQube URL
+                    -Dsonar.host.url=http://localhost:9006 \
                     -Dsonar.login=${SONAR_TOKEN}
                     """
                 }
