@@ -11,6 +11,7 @@ pipeline {
         AKS_RESOURCE_GROUP = 'myproject'
         AKS_CLUSTER_NAME = 'projectcluster'
         DATADOG_API_KEY = credentials('datadog-api-key')  // Datadog API Key
+        AZURE_SUBSCRIPTION_ID = 'd2493857-17f6-4bb6-9aa9-2a524537d677'  // Your Azure Subscription ID
     }
 
     stages {
@@ -25,7 +26,6 @@ pipeline {
             steps {
                 echo 'Skipping SonarQube analysis...'
                 script {
-                    // Marking SonarQube stage as success
                     echo 'SonarQube stage marked as success'
                 }
             }
@@ -69,7 +69,7 @@ pipeline {
             steps {
                 echo 'Setting up Azure Monitor...'
                 bat """
-                az monitor metrics alert create --name "HighCPUAlert" --resource-group ${AKS_RESOURCE_GROUP} --scopes /subscriptions/d2493857-17f6-4bb6-9aa9-2a524537d677/resourceGroups/${AKS_RESOURCE_GROUP}/providers/Microsoft.ContainerService/managedClusters/${AKS_CLUSTER_NAME} --condition "avg Percentage CPU > 75" --window-size 5m --evaluation-frequency 1m --action email/maxiecletus@gmail.com
+                az monitor metrics alert create --name "HighCPUAlert" --resource-group ${AKS_RESOURCE_GROUP} --scopes /subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${AKS_RESOURCE_GROUP}/providers/Microsoft.ContainerService/managedClusters/${AKS_CLUSTER_NAME} --condition "avg Percentage CPU > 75" --window-size 5m --evaluation-frequency 1m --action email/maxiecletus@gmail.com
                 """  // Set up Azure Monitor for AKS metrics
             }
         }
