@@ -36,7 +36,7 @@ pipeline {
         stage('Code Quality Analysis with SonarQube') {
             steps {
                 echo 'Running SonarQube analysis...'
-                withSonarQubeEnv('SonarQube') { // Use SonarQube environment configured in Jenkins
+                withSonarQubeEnv('sonartest') { // Use SonarQube environment configured in Jenkins
                     bat """
                     sonar-scanner ^
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} ^
