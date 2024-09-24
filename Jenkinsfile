@@ -16,7 +16,7 @@ pipeline {
         SONAR_PROJECT_KEY = 'simple-node-app'  // SonarQube project key
         SONARQUBE_CREDENTIALS = credentials('sonar-token')  // SonarQube token stored in Jenkins credentials
         SONAR_HOST_URL = 'http://localhost:9006' // SonarQube server URL
-        SONAR_SCANNER_PATH = 'C:\\sonar-scanner\\bin\\sonar-scanner.bat'  // Full path to sonar-scanner.bat
+        SONAR_SCANNER_PATH = 'C:\\sonar-scanner\\bin\\sonar-scanner.bat'  // Full path to sonar-scanner.bat .
     }
 
     stages {
