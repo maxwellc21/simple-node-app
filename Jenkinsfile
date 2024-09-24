@@ -3,33 +3,46 @@ pipeline {
 
     environment {
         SONAR_PROJECT_KEY = 'simple-node-app'
-        SONARQUBE_CREDENTIALS = credentials('sonar-token') // Make sure 'sonar-token' exists in Jenkins credentials
-        SONAR_HOST_URL = 'http://localhost:9006'  // SonarQube is running locally, ensure the port is correct
-        SONAR_SCANNER_PATH = 'C:\\sonar-scanner\\bin\\sonar-scanner.bat'  // Full path to sonar-scanner.bat.
+        SONARQUBE_CREDENTIALS = credentials('sonar-token')
+        SONAR_HOST_URL = 'http://localhost:9006'  // SonarQube is running locally
+        SONAR_SCANNER_PATH = 'C:\\sonar-scanner\\bin\\sonar-scanner.bat'
+
+        ACR_NAME = 'myprojectreg'  // Azure Container Registry (ACR) name
+        ACR_LOGIN_SERVER = 'myprojectreg.azurecr.io'  // ACR login server
+        ACR_CREDENTIALS = credentials('acr_credentials')  // ACR credentials in Jenkins
+
+        KUBECONFIG_PATH = 'C:\\Users\\maxie\\AppData\\Local\\Jenkins\\.jenkins\\jobs\\simple-node-app-pipeline\\.kube\\config'  // Kubeconfig for AKS access
+        DOCKER_IMAGE_NAME = 'simple-node-app'
+        DOCKER_IMAGE_TAG = 'latest'
+
+        AKS_RESOURCE_GROUP = 'myproject'
+        AKS_CLUSTER_NAME = 'projectcluster'  // Path to kubeconfig file
+
+        DATADOG_API_KEY = credentials('datadog-api-key')  // Datadog API Key
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm // Checkout source code from SCM
+                checkout scm
             }
         }
         stage('Build') {
             steps {
                 echo 'Building Node.js app...'
-                bat 'npm install' // Run npm install to install dependencies
+                bat 'npm install'
             }
         }
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                bat 'npm test' // Run npm test to execute the test suite
+                bat 'npm test'
             }
         }
         stage('SonarQube Analysis') {
             steps {
                 echo 'Running SonarQube analysis...'
-                withSonarQubeEnv('sonartest') { // Ensure 'sonartest' matches the SonarQube server configuration in Jenkins
+                withSonarQubeEnv('sonartest') { // Ensure 'sonartest' matches the SonarQube configuration
                     bat """
                     ${SONAR_SCANNER_PATH} ^
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} ^
@@ -42,47 +55,53 @@ pipeline {
         }
         stage('Check Quality Gate') {
             steps {
-                echo 'SonarQube quality gate evaluation...'
-                waitForQualityGate abortPipeline: false // Proceed even if the quality gate fails
+                script {
+                    timeout(time: 5, unit: 'MINUTES') { // Timeout to avoid indefinite waiting
+                        waitForQualityGate abortPipeline: true  // Abort if the quality gate fails
+                    }
+                }
             }
         }
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                bat 'docker build -t simple-node-app:latest .' // Build Docker image
+                bat "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ."  // Build Docker image
             }
         }
-        stage('Push Docker Image to ACR') {
+        stage('Push to ACR') {
+            
             steps {
                 echo 'Pushing Docker image to ACR...'
-                bat 'docker login myprojectreg.azurecr.io -u myprojectreg -p ******' // Use Jenkins credentials for secure Docker login
-                bat 'docker tag simple-node-app:latest myprojectreg.azurecr.io/simple-node-app:latest' // Tag the image
-                bat 'docker push myprojectreg.azurecr.io/simple-node-app:latest' // Push to ACR
+                bat "docker login ${ACR_LOGIN_SERVER} -u ${ACR_CREDENTIALS_USR} -p ${ACR_CREDENTIALS_PSW}"  // Login to ACR
+                bat "docker tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ${ACR_LOGIN_SERVER}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"  // Tag image
+                bat "docker push ${ACR_LOGIN_SERVER}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"  // Push image to ACR
             }
         }
         stage('Deploy to AKS') {
             steps {
                 echo 'Deploying Docker image to AKS...'
-                bat 'kubectl apply -f k8s/deployment.yaml --kubeconfig=C:/Users/maxie/AppData/Local/Jenkins/.jenkins/jobs/simple-node-app-pipeline/.kube/config' // Deploy using kubectl
+                bat 'kubectl apply -f k8s/deployment.yaml --kubeconfig=%KUBECONFIG_PATH%'  // Deploy to AKS
             }
         }
         stage('Datadog Monitoring') {
             steps {
                 echo 'Setting up Datadog monitoring...'
-                bat 'helm upgrade datadog-agent --set datadog.apiKey=****** --set datadog.logs.enabled=true datadog/datadog' // Install or upgrade Datadog monitoring
+                bat """
+                helm upgrade datadog-agent --set datadog.apiKey=${DATADOG_API_KEY} --set datadog.logs.enabled=true datadog/datadog
+                """  // Install/upgrade Datadog agent in AKS using Helm
             }
         }
     }
-    
+
     post {
         always {
-            echo 'Pipeline execution complete.' // Always log that the pipeline has completed
+            echo 'Pipeline execution complete.'
         }
         success {
-            echo 'Pipeline succeeded.' // Log success message if the pipeline finishes successfully
+            echo 'Pipeline succeeded.'
         }
         failure {
-            echo 'Pipeline failed.' // Log failure message if the pipeline fails
+            echo 'Pipeline failed.'
         }
     }
 }
