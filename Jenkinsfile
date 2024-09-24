@@ -16,6 +16,7 @@ pipeline {
         SONAR_PROJECT_KEY = 'simple-node-app'  // SonarQube project key
         SONARQUBE_CREDENTIALS = credentials('sonar-token')  // SonarQube token stored in Jenkins credentials
         SONAR_HOST_URL = 'http://localhost:9006' // SonarQube server URL
+        SONAR_SCANNER_PATH = 'C:\\sonar-scanner\\bin\\sonar-scanner.bat'  // Full path to sonar-scanner.bat
     }
 
     stages {
@@ -36,15 +37,13 @@ pipeline {
         stage('Code Quality Analysis with SonarQube') {
             steps {
                 echo 'Running SonarQube analysis...'
-                withSonarQubeEnv('sonartest') { // Use SonarQube environment configured in Jenkins
-                    bat """
-                    sonar-scanner ^
-                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} ^
-                        -Dsonar.sources=. ^
-                        -Dsonar.host.url=${SONAR_HOST_URL} ^
-                        -Dsonar.login=${SONARQUBE_CREDENTIALS_USR}
-                    """
-                }
+                bat """
+                ${SONAR_SCANNER_PATH} ^
+                    -Dsonar.projectKey=${SONAR_PROJECT_KEY} ^
+                    -Dsonar.sources=. ^
+                    -Dsonar.host.url=${SONAR_HOST_URL} ^
+                    -Dsonar.login=${SONARQUBE_CREDENTIALS}
+                """
             }
         }
 
