@@ -37,13 +37,15 @@ pipeline {
         stage('Code Quality Analysis with SonarQube') {
             steps {
                 echo 'Running SonarQube analysis...'
-                bat """
-                ${SONAR_SCANNER_PATH} ^
-                    -Dsonar.projectKey=${SONAR_PROJECT_KEY} ^
-                    -Dsonar.sources=. ^
-                    -Dsonar.host.url=${SONAR_HOST_URL} ^
-                    -Dsonar.login=${SONARQUBE_CREDENTIALS}
-                """
+                withSonarQubeEnv('sonartest') {  // Wrapping the SonarQube environment
+                    bat """
+                    ${SONAR_SCANNER_PATH} ^
+                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} ^
+                        -Dsonar.sources=. ^
+                        -Dsonar.host.url=${SONAR_HOST_URL} ^
+                        -Dsonar.login=${SONARQUBE_CREDENTIALS}
+                    """
+                }
             }
         }
 

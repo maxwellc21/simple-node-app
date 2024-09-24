@@ -1,7 +1,6 @@
 {
   "name": "simple-node-app",
   "version": "1.0.0",
-  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "jest"
