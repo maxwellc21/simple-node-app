@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: simple-node-container
-        image: your-acr-name.azurecr.io/simple-node-app:latest  # The Docker image from ACR
+        image: myprojectreg.azurecr.io/simple-node-app:latest  # The Docker image from ACR
         ports:
         - containerPort: 3000  # App listens on port 3000
 ---
