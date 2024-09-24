@@ -11,6 +11,7 @@ pipeline {
         AKS_RESOURCE_GROUP = 'myproject'
         AKS_CLUSTER_NAME = 'projectcluster'
         DATADOG_API_KEY = credentials('datadog-api-key')  // Datadog API Key
+        SONAR_TOKEN = credentials('sonar-token')  // SonarQube Token added here
     }
 
     stages {
@@ -25,7 +26,13 @@ pipeline {
             steps {
                 echo 'Running SonarQube analysis...'
                 withSonarQubeEnv('SonarQube') {
-                    bat 'npm run sonar-scanner'  // Run SonarQube for code quality
+                    // Modify the sonar-scanner command to use the SonarQube token
+                    bat """
+                    sonar-scanner \
+                    -Dsonar.projectKey=myprojectkey \
+                    -Dsonar.host.url=http://localhost:9006 \
+                    -Dsonar.login=%SONAR_TOKEN%
+                    """
                 }
             }
         }
