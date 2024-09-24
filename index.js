@@ -6,7 +6,10 @@ app.get('/', (req, res) => {
   res.send('Hello, Jenkins and Kubernetes! Its working now');
 });
 
-app.listen(port, () => {
-  console.log(`App running at http://localhost:${port}`);
-});
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`App running at http://localhost:${port}`);
+  });
+}
 
+module.exports = app; // Export the app for testing
