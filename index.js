@@ -3,7 +3,7 @@ const app = express();
 const port = 3000;
 
 app.get('/', (req, res) => {
-  res.send('Hello, Jenkins .and Kubernetes! Its working now');
+  res.send('Hello, Jenkins neand Kubernetes! Its working now');
 });
 
 if (require.main === module) {
