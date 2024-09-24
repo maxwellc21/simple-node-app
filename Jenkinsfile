@@ -1,6 +1,13 @@
 pipeline {
     agent any
 
+    environment {
+        SONAR_PROJECT_KEY = 'simple-node-app'
+        SONARQUBE_CREDENTIALS = credentials('sonar-token')
+        SONAR_HOST_URL = 'http://localhost:9006'
+        SONAR_SCANNER_PATH = 'C:\\sonar-scanner\\bin\\sonar-scanner.bat'  // Full path to sonar-scanner.bat
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -22,8 +29,14 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 echo 'Running SonarQube analysis...'
-                withSonarQubeEnv('sonartest') {
-                    bat 'C:/sonar-scanner/bin/sonar-scanner.bat -Dsonar.projectKey=simple-node-app -Dsonar.sources=. -Dsonar.host.url=http://localhost:9006 -Dsonar.token=******'
+                withSonarQubeEnv('sonartest') { // This uses the SonarQube server configuration 'sonartest'
+                    bat """
+                    ${SONAR_SCANNER_PATH} ^
+                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} ^
+                        -Dsonar.sources=. ^
+                        -Dsonar.host.url=${SONAR_HOST_URL} ^
+                        -Dsonar.login=${SONARQUBE_CREDENTIALS}
+                    """
                 }
             }
         }
