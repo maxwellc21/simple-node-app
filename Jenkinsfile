@@ -13,6 +13,9 @@ pipeline {
         DATADOG_API_KEY = credentials('datadog-api-key')
         AZURE_SUBSCRIPTION_ID = 'd2493857-17f6-4bb6-9aa9-2a524537d677'
         ACTION_GROUP_ID = '/subscriptions/d2493857-17f6-4bb6-9aa9-2a524537d677/resourceGroups/myproject/providers/microsoft.insights/actionGroups/MyActionGroup'
+        SONAR_PROJECT_KEY = 'simple-node-app'  // Replace with your SonarQube project key
+        SONARQUBE_CREDENTIALS = credentials('sonar-token')  // SonarQube token stored in Jenkins credentials
+        SONAR_HOST_URL = 'http://localhost:9006' // Update with your SonarQube server URL
     }
 
     stages {
@@ -30,10 +33,18 @@ pipeline {
             }
         }
 
-        stage('Code Quality Analysis with ESLint') {
+        stage('Code Quality Analysis with SonarQube') {
             steps {
-                echo 'Running ESLint...'
-                bat 'npx eslint .'
+                echo 'Running SonarQube analysis...'
+                withSonarQubeEnv('SonarQube') { // Use SonarQube environment in Jenkins
+                    bat """
+                    sonar-scanner \
+                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONARQUBE_CREDENTIALS}
+                    """
+                }
             }
         }
 
@@ -75,6 +86,14 @@ pipeline {
     post {
         always {
             echo 'Pipeline execution complete.'
+        }
+        success {
+            script {
+                echo 'SonarQube quality gate evaluation...'
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
         }
     }
 }
