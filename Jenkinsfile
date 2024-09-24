@@ -37,7 +37,7 @@ pipeline {
         stage('Code Quality Analysis with SonarQube') {
             steps {
                 echo 'Running SonarQube analysis...'
-                withSonarQubeEnv('SonarQube') {  // Wrap SonarQube steps with SonarQube environment
+                withSonarQubeEnv('sonartest') {  // Wrap SonarQube steps with SonarQube environment
                     bat """
                     ${SONAR_SCANNER_PATH} ^
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} ^
