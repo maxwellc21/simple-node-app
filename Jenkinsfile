@@ -71,7 +71,7 @@ pipeline {
             steps {
                 echo 'Setting up Azure Monitor...'
                 bat """
-                az monitor metrics alert create --name "HighCPUAlert" --resource-group ${AKS_RESOURCE_GROUP} --scopes /subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${AKS_RESOURCE_GROUP}/providers/Microsoft.ContainerService/managedClusters/${AKS_CLUSTER_NAME} --condition "avg Percentage CPU > 75" --window-size 5m --evaluation-frequency 1m --action-group ${ACTION_GROUP_ID}
+                az monitor metrics alert create --name "HighCPUAlert" --resource-group ${AKS_RESOURCE_GROUP} --scopes /subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${AKS_RESOURCE_GROUP}/providers/Microsoft.ContainerService/managedClusters/${AKS_CLUSTER_NAME} --condition "avg Percentage CPU > 75" --window-size 5m --evaluation-frequency 1m --actions ${ACTION_GROUP_ID}
                 """  // Set up Azure Monitor for AKS metrics
             }
         }
