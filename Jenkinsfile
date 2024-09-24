@@ -37,13 +37,13 @@ pipeline {
         stage('Code Quality Analysis with SonarQube') {
             steps {
                 echo 'Running SonarQube analysis...'
-                withSonarQubeEnv('sonartest') {  // Wrapping the SonarQube environment
+                withSonarQubeEnv('SonarQube') {  // Wrap SonarQube steps with SonarQube environment
                     bat """
                     ${SONAR_SCANNER_PATH} ^
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} ^
                         -Dsonar.sources=. ^
                         -Dsonar.host.url=${SONAR_HOST_URL} ^
-                        -Dsonar.login=${SONARQUBE_CREDENTIALS}
+                        -Dsonar.token=${SONARQUBE_CREDENTIALS}
                     """
                 }
             }
@@ -92,9 +92,15 @@ pipeline {
             script {
                 echo 'SonarQube quality gate evaluation...'
                 timeout(time: 1, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                    def qg = waitForQualityGate()
+                    if (qg.status != 'OK') {
+                        error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                    }
                 }
             }
+        }
+        failure {
+            echo 'Pipeline failed.'
         }
     }
 }
