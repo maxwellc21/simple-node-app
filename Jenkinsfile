@@ -60,7 +60,7 @@ pipeline {
                 bat """
                 helm repo add datadog https://helm.datadoghq.com
                 helm repo update
-                helm upgrade datadog-agent --set datadog.apiKey=${DATADOG_API_KEY} --set datadog.logs.enabled=true datadog/datadog
+                helm list --namespace default | findstr datadog-agent || helm install datadog-agent --set datadog.apiKey=${DATADOG_API_KEY} --set datadog.logs.enabled=true datadog/datadog
                 """
             }
         }
