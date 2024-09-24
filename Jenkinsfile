@@ -5,7 +5,7 @@ pipeline {
         SONAR_PROJECT_KEY = 'simple-node-app'
         SONARQUBE_CREDENTIALS = credentials('sonar-token')
         SONAR_HOST_URL = 'http://localhost:9006'
-        SONAR_SCANNER_PATH = 'C:\\sonar-scanner\\bin\\sonar-scanner.bat'  // Full path to sonar-scanner.bat
+        SONAR_SCANNER_PATH = 'C:\\sonar-scanner\\bin\\sonar-scanner.bat'  // Full path to sonar-scanner.bat.
     }
 
     stages {
