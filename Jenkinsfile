@@ -11,7 +11,6 @@ pipeline {
         AKS_RESOURCE_GROUP = 'myproject'
         AKS_CLUSTER_NAME = 'projectcluster'
         DATADOG_API_KEY = credentials('datadog-api-key')  // Datadog API Key
-        SONAR_TOKEN = credentials('sonar-token')  // Correct token name for SonarQube
     }
 
     stages {
@@ -26,6 +25,7 @@ pipeline {
             steps {
                 echo 'Skipping SonarQube analysis...'
                 script {
+                    // Marking SonarQube stage as success
                     echo 'SonarQube stage marked as success'
                 }
             }
@@ -58,8 +58,10 @@ pipeline {
             steps {
                 echo 'Setting up Datadog monitoring...'
                 bat """
+                helm repo add datadog https://helm.datadoghq.com
+                helm repo update
                 helm upgrade datadog-agent --set datadog.apiKey=${DATADOG_API_KEY} --set datadog.logs.enabled=true datadog/datadog
-                """  // Install/upgrade Datadog agent in AKS using Helm
+                """
             }
         }
 
