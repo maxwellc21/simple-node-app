@@ -1,0 +1,137 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    text-align: center;
+}
+
+/* Header */
+header {
+    background-color: #3498db;
+    color: white;
+    padding: 20px 0;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 3rem; /* Increased font size for the title */
+    margin: 0;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+header nav {
+    margin-top: 10px;
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 15px;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+}
+
+header nav a:hover {
+    color: #2980b9;
+}
+
+/* Blog Post List */
+ul {
+    list-style-type: none;
+    padding: 0;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+li {
+    background: white;
+    margin: 15px 0;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+h2 {
+    font-size: 2rem; /* Increased font size for post titles */
+    margin-bottom: 10px;
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+p {
+    font-size: 1.1rem; /* Increased font size for the content */
+    line-height: 1.7;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+/* Post Actions */
+.post-actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.post-actions form {
+    display: inline-block;
+}
+
+/* Buttons */
+button, .btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 25px; /* Larger button size */
+    border-radius: 5px;
+    font-size: 1rem; /* Slightly increased font size for buttons */
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button:hover, .btn:hover {
+    background-color: #2980b9;
+}
+
+form button {
+    margin-left: 10px;
+}
+
+/* Footer */
+footer {
+    background-color: #3498db;
+    padding: 10px;
+    color: white;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    margin-top: 50px;
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    ul {
+        padding: 0 15px;
+    }
+
+    li {
+        padding: 20px;
+    }
+
+    header h1 {
+        font-size: 2.5rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <title>My Blog</title>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <h1>My Blog</h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/posts/new">Create New Post</a>
+        </nav>
+    </header>
+
+    <!-- Blog Posts Section -->
+    <main>
+        <ul>
+            <% posts.forEach(post => { %>
+                <li>
+                    <h2><%= post.title %></h2>
+                    <p><%= post.content %></p>
+                    <div class="post-actions">
+                        <a href="/posts/<%= post.id %>/edit" class="btn">Edit</a>
+                        <form method="POST" action="/posts/<%= post.id %>?_method=DELETE">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </div>
+                </li>
+            <% }) %>
+        </ul>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2024 My Blog | Powered by Node.js</p>
+    </footer>
+</body>
+</html>

@@ -17,6 +17,9 @@ spec:
         image: myprojectreg.azurecr.io/simple-node-app:latest  # The Docker image from ACR
         ports:
         - containerPort: 3000  # App listens on port 3000
+        env:
+        - name: DATABASE_URL  # Pass environment variable for PostgreSQL connection
+          value: "postgresql://blog_app_db_ect7_user:bSQRVsyZ4dcfcTPTDhQzRoofiGTwYLWI@dpg-crpq2ajv2p9s7389vm30-a.singapore-postgres.render.com/blog_app_db_ect7"
 ---
 apiVersion: v1
 kind: Service
@@ -30,4 +33,3 @@ spec:
   - protocol: TCP
     port: 80  # External port (public-facing)
     targetPort: 3000  # Internal port (inside the container)
-
