@@ -21,7 +21,7 @@ app.use(methodOverride('_method'));
 // Serve static files (CSS, images, etc.) from the "public" folder
 app.use(express.static('public'));
 
-// Initialize the PostgreSQL connection using environment variable
+// Initialize the PostgreSQL connection using the environment variable
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     dialectOptions: {
@@ -53,4 +53,13 @@ app.get('/posts/:id/edit', postController.renderEditForm);
 app.put('/posts/:id', postController.updatePost);
 app.delete('/posts/:id', postController.deletePost);
 
+// Only start the server if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+    });
+}
+
+// Export the app for testing
 module.exports = app;
