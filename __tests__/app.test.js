@@ -1,32 +1,36 @@
 // __tests__/app.test.js
 const request = require('supertest');
-const { app, getServer } = require('../index'); // Import both app and the getServer function
+const app = require('../index'); // Import the app to test
+const { Sequelize } = require('sequelize');
 
-// Test Routes
 describe('Test Routes', () => {
-    let server;
+    let sequelize;
 
-    // Start the server before all tests
     beforeAll(() => {
-        server = getServer(); // Initialize the server for tests
+        sequelize = new Sequelize(process.env.DATABASE_URL, {
+            dialect: 'postgres',
+            dialectOptions: {
+                ssl: {
+                    require: true,
+                    rejectUnauthorized: false
+                },
+            },
+        });
     });
 
-    // Test the home route
     it('should return 200 for the home route', async () => {
         const res = await request(app).get('/');
         expect(res.statusCode).toEqual(200);
-        expect(res.text).toContain('My Blog'); // Check if "My Blog" is in the response
+        expect(res.text).toContain('My Blog');  // Adjust based on actual content
     });
 
-    // Test the create new post route
-    it('should return 200 for the create new post route', async () => {
+    it('should return 200 for the create post route', async () => {
         const res = await request(app).get('/posts/new');
         expect(res.statusCode).toEqual(200);
-        expect(res.text).toContain('Create a New Post'); // Check if "Create a New Post" is in the response
+        expect(res.text).toContain('Create a New Post');  // Adjust based on actual content
     });
 
-    // After all tests, close the server
-    afterAll((done) => {
-        server.close(done); // Close the server to avoid open handles
+    afterAll(async () => {
+        await sequelize.close();  // Properly close the connection
     });
 });

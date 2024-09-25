@@ -19,6 +19,8 @@ pipeline {
         AKS_CLUSTER_NAME = 'projectcluster'  // Path to kubeconfig file
 
         DATADOG_API_KEY = credentials('datadog-api-key')  // Datadog API Key
+
+        DATABASE_URL = 'postgresql://blog_app_db_ect7_user:bSQRVsyZ4dcfcTPTDhQzRoofiGTwYLWI@dpg-crpq2ajv2p9s7389vm30-a.singapore-postgres.render.com/blog_app_db_ect7'
     }
 
     stages {
@@ -36,7 +38,10 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                bat 'npm test'
+                // Inject environment variables like DATABASE_URL for the test
+                withEnv(['DATABASE_URL=postgresql://blog_app_db_ect7_user:bSQRVsyZ4dcfcTPTDhQzRoofiGTwYLWI@dpg-crpq2ajv2p9s7389vm30-a.singapore-postgres.render.com/blog_app_db_ect7']) {
+                    bat 'npm test'
+                }
             }
         }
         stage('SonarQube Analysis') {
@@ -56,8 +61,8 @@ pipeline {
         stage('Check Quality Gate') {
             steps {
                 script {
-                    timeout(time: 5, unit: 'MINUTES') { // Timeout to avoid indefinite waiting
-                        waitForQualityGate abortPipeline: true  // Abort if the quality gate fails
+                    timeout(time: 5, unit: 'MINUTES') {
+                        waitForQualityGate abortPipeline: true
                     }
                 }
             }
@@ -65,22 +70,21 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                bat "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ."  // Build Docker image.
+                bat "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ."
             }
         }
         stage('Push to ACR') {
-            
             steps {
                 echo 'Pushing Docker image to ACR...'
-                bat "docker login ${ACR_LOGIN_SERVER} -u ${ACR_CREDENTIALS_USR} -p ${ACR_CREDENTIALS_PSW}"  // Login to ACR
-                bat "docker tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ${ACR_LOGIN_SERVER}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"  // Tag image
-                bat "docker push ${ACR_LOGIN_SERVER}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"  // Push image to ACR
+                bat "docker login ${ACR_LOGIN_SERVER} -u ${ACR_CREDENTIALS_USR} -p ${ACR_CREDENTIALS_PSW}"
+                bat "docker tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ${ACR_LOGIN_SERVER}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+                bat "docker push ${ACR_LOGIN_SERVER}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
             }
         }
         stage('Deploy to AKS') {
             steps {
                 echo 'Deploying Docker image to AKS...'
-                bat 'kubectl apply -f k8s/deployment.yaml --kubeconfig=%KUBECONFIG_PATH%'  // Deploy to AKS
+                bat 'kubectl apply -f k8s/deployment.yaml --kubeconfig=%KUBECONFIG_PATH%'
             }
         }
         stage('Datadog Monitoring') {
@@ -88,7 +92,7 @@ pipeline {
                 echo 'Setting up Datadog monitoring...'
                 bat """
                 helm upgrade datadog-agent --set datadog.apiKey=${DATADOG_API_KEY} --set datadog.logs.enabled=true datadog/datadog
-                """  // Install/upgrade Datadog agent in AKS using Helm
+                """
             }
         }
     }
